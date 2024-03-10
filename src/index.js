@@ -26,7 +26,7 @@ import express from "express";
 const app = express()
 ;(async ()=>{
     try {
-        await mongoose.console(`${process.env.MONGODB_URI}/${DB_NAME}`)
+        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
         app.on("error",(error)=>{
             console.log("Error : ",error)
             throw err

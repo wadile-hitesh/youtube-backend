@@ -220,12 +220,12 @@ const changeCurrentUserPassword = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
     return res
-      .status(200)
-      .json(new ApiResponse(200, user, "User fetched successfully"));
+        .status(200)
+        .json(new ApiResponse(200, req.user, "User fetched successfully"));
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    const { fullname, email, } = req.body
+    const { fullname, email } = req.body
 
     if (!fullname || !email) {
         throw new ApiError(400, "All Fields are Required")
@@ -318,7 +318,7 @@ const getUserChannelProfile = asyncHandler(async (req,res)=>{
             $lookup: {
             from: "subscriptions",
             localField: "_id",
-            foreignField: "subsciber",
+            foreignField: "subscriber",
             as: "subscribedTo",
             },
         },

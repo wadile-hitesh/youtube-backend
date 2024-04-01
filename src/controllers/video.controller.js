@@ -52,6 +52,48 @@ const publishVideo = asyncHandler(async (req, res) => {
     return res.status(201).json(new ApiResponse(201, {video}, "Video Published Successfully"));
 });
 
+const getVideoById = asyncHandler(async (req, res) => {
+    const {videoId} = req.params;
+    console.log(req);
+    const video = await Video.findById(videoId)
+
+    if(!video) {
+        return res.status(404).json(new ApiError(404, "Video Not Found"));
+    }
+
+    return res.status(200).json(new ApiResponse(200, {video},"Video Found Successfully"));
+});
+
+const deleteVideo = asyncHandler(async (req, res) => {
+    const {videoId} = req.params;
+
+    const video = await Video.findByIdAndDelete(videoId);
+
+    if(!video) {
+        return res.status(404).json(new ApiError(404, "Video Not Found"));
+    }
+
+    return res.status(200).json(new ApiResponse(200, {video}, "Video Deleted Successfully"));
+});
+
+const updateVideo = asyncHandler(async (req, res) => {
+    // Get Video Id
+    // Get Details like title and description and Thumbnail
+    // Update the Video Document
+    
+    const {videoId} = req.params;
+    const {title,description} = req.body;
+
+    let thumbnailLocalPath;
+    console.log(req.body);
+    // const video = await Video.findByIdAndUpdate(videoId)
+
+    return res.status(201).json(new ApiResponse(201, "Video Updated Successfully"));
+});
+
 export { 
     publishVideo ,
+    getVideoById,
+    deleteVideo,
+    updateVideo
 }

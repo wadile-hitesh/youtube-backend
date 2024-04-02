@@ -14,6 +14,7 @@ const publishVideo = asyncHandler(async (req, res) => {
     }
     console.log("User");
     // Get the video file path
+    // console.log(req.files);
     const videoFilePath = req.files?.video[0].path;
     // Thumbnail File Path
     const thumbnailFilePath = req.files?.thumbnail[0].path;
@@ -85,10 +86,27 @@ const updateVideo = asyncHandler(async (req, res) => {
     const {title,description} = req.body;
 
     let thumbnailLocalPath;
-    console.log(req.body);
-    // const video = await Video.findByIdAndUpdate(videoId)
+    console.log(req.file);
 
-    return res.status(201).json(new ApiResponse(201, "Video Updated Successfully"));
+    if(req.file && req.file.path.length > 0){
+        thumbnailLocalPath = req.file.path;
+    }
+    // console.log(req.file.path);
+    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    console.log(thumbnail);
+    if(!thumbnail) {
+        return res.status(500).json(new ApiError(500, "Some Error Occured while uploading the thumbnail file"));
+    }
+
+    const video = await Video.findByIdAndUpdate(videoId, {
+        $set : {
+            title,
+            description,
+            thumbnail : thumbnail.url
+        }
+    }, {new : true});
+
+    return res.status(201).json(new ApiResponse(201,{video} ,"Video Updated Successfully"));
 });
 
 export { 

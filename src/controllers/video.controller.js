@@ -6,6 +6,49 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+const getAllVideos = asyncHandler(async (req, res) => {
+    const {page = 1, limit = 10, query, sortBy, sortType, userId} = req.query;
+    console.log(req.query);
+
+    const videos = await Video.aggregate([
+        {
+            $match : {
+                owner : new mongoose.Types.ObjectId(userId),
+            }
+        },
+        {
+            $lookup : {
+                from : "videos",
+                localField : "_id",
+                foreignField : "owner",
+                as : "videosOwner"
+            }
+        },
+        {
+            $project : {
+                _id : 1,
+                title : 1,
+                description : 1,
+                videoFile : 1,
+                duration : 1,
+                thumbnail : 1,
+                owner : 1,
+                videosOwner : {
+                    _id : 1,
+                    name : 1,
+                    email : 1
+                }
+            
+            }
+        }
+
+    ])
+
+    console.log(videos);
+
+    return res.status(200).json(new ApiResponse(200, {videos : []}, "Videos Found Successfully"));
+});
+
 const publishVideo = asyncHandler(async (req, res) => {
     const {title, description} = req.body;
 
@@ -110,8 +153,9 @@ const updateVideo = asyncHandler(async (req, res) => {
 });
 
 export { 
+    getAllVideos,
     publishVideo ,
     getVideoById,
     deleteVideo,
-    updateVideo
+    updateVideo,
 }

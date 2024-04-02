@@ -25,4 +25,12 @@ const uploadOnCloudinary = async (localFilePath)=>{
     }
 }
 
+const deleteOnCloudinary = async (localFilePath)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
 export {uploadOnCloudinary};

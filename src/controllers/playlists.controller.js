@@ -3,6 +3,7 @@ import {Playlist} from '../models/playlist.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { User } from '../models/user.models.js';
 
 const createPlaylist = asyncHandler(async (req,res)=>{
     const {name, description} = req.body;
@@ -221,7 +222,7 @@ const getPlaylistById = asyncHandler(async (req,res)=>{
                     $size : "$videos"
                 },
                 totalViews : {
-                    $sum : "videos.view"
+                    $sum : "$videos.view"
                 },
                 owner : {
                     $first : "$owner"
@@ -260,6 +261,51 @@ const getPlaylistById = asyncHandler(async (req,res)=>{
     }
 
     return res.status(200).json(201, getPlaylistVideos, "Playist Fetched Successfully")
+})
+
+const getUserPlaylists = asyncHandler(async (req,res)=>{
+    const {userId} = req.params
+
+    if(!isValidObjectId(userId)){
+        throw new ApiError(400,"Invalid User Id")
+    }
+    
+    const playlists = await Playlist.aggregate([
+        {
+            $match : {
+                owner : new mongoose.Types.ObjectId(userId)
+            },
+        },
+        {
+            $lookup : {
+                from : "videos",
+                foreignField : "videos",
+                localField : "_id",
+                as : "videos"
+            },
+        },
+        {
+            $addFields : {
+                totalVideos : {
+                        $size : "$videos"
+                },
+                totalViews : {
+                    $sum : "$videos.views"
+                }
+            }            
+        },
+        {
+            $project : {
+                _id: 1,
+                name: 1,
+                description: 1,
+                totalVideos: 1,
+                totalViews: 1,
+                updatedAt: 1
+            }
+        }
+    ])
+
 })
 
 export {
